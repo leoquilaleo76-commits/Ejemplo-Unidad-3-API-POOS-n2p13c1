@@ -1,4 +1,4 @@
-from views.utils import leer_numero, confirmar, leer_texto
+from views.utils import leer_numero, confirmar
 from models.paciente import Paciente
 from models.departamento import Departamento
 
@@ -20,8 +20,8 @@ class PacienteView:
     @staticmethod
     def formulario_nuevo_paciente(departamentos: list[Departamento]) -> dict:
         print("\n--- Agregar Nuevo Paciente ---")
-        rut = leer_texto("Ingrese el RUT del paciente (ej: 12.345.678-9): ")
-        nombre = leer_texto("Ingrese el nombre del paciente: ")
+        rut = input("Ingrese el RUT del paciente (ej: 12.345.678-9): ")
+        nombre = input("Ingrese el nombre del paciente: ")
         edad = leer_numero("Ingrese edad del paciente: ")
         print("Previsiones disponibles: 1.- Fonasa, 2.- Isapre, 3.- Particular, 4.- Otro")
         opcion_prev = leer_numero("Seleccione una previsión (1-4): ")
@@ -48,7 +48,7 @@ class PacienteView:
 
     @staticmethod
     def solicitar_rut() -> str:
-        return leer_texto("Ingrese el RUT del paciente: ")
+        return input("Ingrese el RUT del paciente: ").strip()
 
     @staticmethod
     def mostrar_paciente(paciente: Paciente) -> None:
@@ -71,11 +71,11 @@ class PacienteView:
         print(f"\n--- Editando Paciente {paciente.nombre} ---")
         print("Deje en blanco si no desea modificar el campo de texto. Ingrese -1 para edad.")
         
-        nuevo_nombre = leer_texto(f"Nombre actual ({paciente.nombre}): ", permitir_vacio=True)
+        nuevo_nombre = input(f"Nombre actual ({paciente.nombre}): ")
         if not nuevo_nombre.strip():
             nuevo_nombre = paciente.nombre
             
-        nueva_edad_input = leer_texto(f"Edad actual ({paciente.edad}): ", permitir_vacio=True)
+        nueva_edad_input = input(f"Edad actual ({paciente.edad}): ")
         try:
             nueva_edad = int(nueva_edad_input) if nueva_edad_input.strip() else paciente.edad
         except ValueError:
@@ -95,7 +95,7 @@ class PacienteView:
             print("No hay departamentos registrados.")
             
         depto_actual_str = paciente.departamento.id_departamento if paciente.departamento else "Ninguno"
-        opcion_depto_input = leer_texto(f"Seleccione nuevo ID de departamento (Actual: {depto_actual_str}, deje en blanco para mantener, 0 para quitar): ", permitir_vacio=True)
+        opcion_depto_input = input(f"Seleccione nuevo ID de departamento (Actual: {depto_actual_str}, deje en blanco para mantener, 0 para quitar): ")
         
         depto_id = paciente.departamento.id_departamento if paciente.departamento else None
         

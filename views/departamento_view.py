@@ -1,4 +1,4 @@
-from views.utils import leer_numero, confirmar, leer_texto
+from views.utils import leer_numero, confirmar
 from models.departamento import Departamento
 
 class DepartamentoView:
@@ -19,7 +19,7 @@ class DepartamentoView:
     @staticmethod
     def formulario_nuevo_departamento() -> dict:
         print("\n--- Agregar Nuevo Departamento ---")
-        nombre = leer_texto("Ingrese el nombre del departamento: ")
+        nombre = input("Ingrese el nombre del departamento: ")
         piso = leer_numero("Ingrese el piso (número): ")
         
         return {
@@ -52,11 +52,11 @@ class DepartamentoView:
         print(f"\n--- Editando Departamento [ID: {departamento.id_departamento}] ---")
         print("Deje en blanco si no desea modificar el campo de texto.")
         
-        nuevo_nombre = leer_texto(f"Nombre actual ({departamento.nombre}): ", permitir_vacio=True)
+        nuevo_nombre = input(f"Nombre actual ({departamento.nombre}): ")
         if not nuevo_nombre.strip():
             nuevo_nombre = departamento.nombre
             
-        nuevo_piso_input = leer_texto(f"Piso actual ({departamento.piso}): ", permitir_vacio=True)
+        nuevo_piso_input = input(f"Piso actual ({departamento.piso}): ")
         try:
             nuevo_piso = int(nuevo_piso_input) if nuevo_piso_input.strip() else departamento.piso
         except ValueError:

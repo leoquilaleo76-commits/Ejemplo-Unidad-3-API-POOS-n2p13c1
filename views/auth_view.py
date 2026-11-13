@@ -1,23 +1,26 @@
+from views.utils import leer_numero, confirmar
 from models.usuario import Usuario
-from views.utils import confirmar, leer_numero
-
 
 class AuthView:
-    """Vista de consola para autenticación y gestión de usuarios."""
+    """
+    Vista de consola para el Inicio de Sesión y la Gestión de Usuarios con Credenciales Encriptadas.
+    """
 
     @staticmethod
     def mostrar_banner_login(intento_actual: int, max_intentos: int) -> None:
         print("\n" + "=" * 55)
-        print("   CLÍNICA SANITARIA - INICIO DE SESIÓN SEGURO")
+        print("   CLÍNICA SANITARIA - INICIO DE SESIÓN SEGURO (SHA-256)")
         print("=" * 55)
-        print(f"Intento {intento_actual} de {max_intentos}")
+        print(f"Intento {intento_actual} de {max_intentos} (Por defecto: admin / admin1234)")
         print("-" * 55)
 
     @staticmethod
-    def solicitar_credenciales() -> dict[str, str]:
+    def solicitar_credenciales() -> dict:
+        username = input("Usuario    : ").strip()
+        clave = input("Contraseña : ").strip()
         return {
-            "username": input("Usuario    : ").strip(),
-            "clave": input("Contraseña : ").strip(),
+            "username": username,
+            "clave": clave
         }
 
     @staticmethod
@@ -40,22 +43,24 @@ class AuthView:
         return leer_numero("Seleccione una opción: ")
 
     @staticmethod
-    def formulario_nuevo_usuario() -> dict[str, str]:
+    def formulario_nuevo_usuario() -> dict:
         print("\n--- Registrar Nuevo Usuario ---")
         username = input("Ingrese nombre de usuario (mín. 3 caracteres, sin espacios): ").strip()
         nombre_completo = input("Ingrese nombre completo del funcionario: ").strip()
-        clave = input("Ingrese contraseña (mín. 4 caracteres): ").strip()
+        clave = input("Ingrese contraseña (mín. 4 caracteres, se encriptará con SHA-256): ").strip()
         confirmacion = input("Confirme la contraseña: ").strip()
 
         print("Roles disponibles: 1.- Administrador, 2.- Medico, 3.- Operador")
         opcion_rol = leer_numero("Seleccione un rol (1-3): ")
-        roles = {1: "Administrador", 2: "Medico", 3: "Operador"}
+        mapa_roles = {1: "Administrador", 2: "Medico", 3: "Operador"}
+        rol = mapa_roles.get(opcion_rol, "")
+
         return {
             "username": username,
             "nombre_completo": nombre_completo,
             "clave": clave,
             "confirmacion": confirmacion,
-            "rol": roles.get(opcion_rol, ""),
+            "rol": rol
         }
 
     @staticmethod
@@ -64,8 +69,8 @@ class AuthView:
         if not usuarios:
             print("No hay usuarios registrados.")
         else:
-            for usuario in usuarios:
-                print(usuario)
+            for u in usuarios:
+                print(u)
         print("-" * 64)
 
     @staticmethod
