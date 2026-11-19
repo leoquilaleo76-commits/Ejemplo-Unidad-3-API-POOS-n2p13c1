@@ -61,7 +61,7 @@ class Database:
                     FOREIGN KEY(rut_paciente) REFERENCES paciente(rut) ON DELETE CASCADE
                 )
             """)
-            # Tabla Usuario (credenciales almacenadas como hash SHA-256)
+            # Tabla Usuario (credenciales PBKDF2 con salt aleatorio)
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS usuario (
                     id_usuario INTEGER PRIMARY KEY AUTOINCREMENT,

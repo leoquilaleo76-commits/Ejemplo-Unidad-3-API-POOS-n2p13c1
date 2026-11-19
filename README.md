@@ -918,3 +918,15 @@ class MainController:
    * Verás el historial de recetas emitidas para ese paciente con su fecha y dosis.
    * Puedes cerrar el programa y volver a abrirlo: los datos seguirán guardados gracias a SQLite.
 
+## Validar pruebas automatizadas
+
+Desde PowerShell, con el directorio actual en la raíz del proyecto (`D:\xd`):
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+No ejecutes `tests/test_seguridad.py` directamente: el descubrimiento de
+unittest conserva la raíz del proyecto en la ruta de importación. Para iniciar
+la aplicación, utiliza `python main.py`.
+

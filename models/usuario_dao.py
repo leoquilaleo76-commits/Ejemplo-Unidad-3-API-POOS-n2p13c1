@@ -123,11 +123,27 @@ class UsuarioDAO:
         finally:
             conn.close()
 
+    @staticmethod
+    def actualizar_password_hash(id_usuario: int, password_hash: str) -> bool:
+        conn = Database().get_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                "UPDATE usuario SET password_hash = ? WHERE id_usuario = ?",
+                (password_hash, id_usuario),
+            )
+            conn.commit()
+            return cursor.rowcount > 0
+        except sqlite3.Error:
+            return False
+        finally:
+            conn.close()
+
     @classmethod
     def inicializar_admin_por_defecto(cls) -> None:
         """
         Si la tabla está vacía, crea un usuario Administrador inicial con su
-        contraseña encriptada (SHA-256) a partir de la configuración del entorno.
+        contraseña derivada mediante PBKDF2 a partir de la configuración del entorno.
         """
         usuarios_existentes = cls.obtener_todos()
         if not usuarios_existentes:

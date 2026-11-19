@@ -1,4 +1,9 @@
 # GUÍA DE IMPLEMENTACIÓN: INICIO DE SESIÓN CON CREDENCIALES ENCRIPTADAS Y VALIDACIÓN DE ENTRADAS
+> **Aviso: guía histórica, no copiar sus ejemplos de autenticación.** El código
+> final de este proyecto usa PBKDF2-HMAC-SHA256 con 200.000 iteraciones y salt
+> aleatorio. Los ejemplos SHA-256 que siguen describen la versión inicial de
+> Semana 12 y se conservan solo como antecedente. La implementación vigente está
+> en `models/usuario.py`, y sus pruebas están en `tests/test_seguridad.py`.
 ## Asignatura: Programación Orientada a Objeto Seguro (TI3021) – Semana 12
 ### Cómo evolucionar el proyecto de la Semana 11 agregando Autenticación Segura en MVC
 

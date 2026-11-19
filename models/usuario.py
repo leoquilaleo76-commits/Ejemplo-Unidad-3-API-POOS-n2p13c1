@@ -1,12 +1,13 @@
 import hashlib
 import hmac
+import os
 import re
 
 class Usuario:
     """
     Modelo de Dominio para la entidad Usuario.
     Implementa:
-    - Encriptación irreversible de credenciales mediante SHA-256 (hashlib).
+    - Derivación de contraseñas con PBKDF2-HMAC-SHA256 y salt aleatorio.
     - Comparación segura en tiempo constante (hmac.compare_digest).
     - Validación defensiva con @property y @setter evitando valores vacíos o incorrectos.
     """
@@ -50,8 +51,17 @@ class Usuario:
         if not isinstance(valor, str) or not valor.strip():
             raise ValueError("El hash de la contraseña no puede estar vacío.")
         limpio = valor.strip().lower()
-        if len(limpio) != 64 or not re.match(r"^[a-f0-9]{64}$", limpio):
-            raise ValueError("La credencial debe almacenarse como un hash SHA-256 válido de 64 caracteres hexadecimales.")
+        coincidencia_pbkdf2 = re.match(
+            r"^pbkdf2_sha256\$(\d+)\$[a-f0-9]{32}\$[a-f0-9]{64}$",
+            limpio,
+        )
+        es_pbkdf2 = bool(
+            coincidencia_pbkdf2
+            and 100_000 <= int(coincidencia_pbkdf2.group(1)) <= 1_000_000
+        )
+        es_legado = len(limpio) == 64 and bool(re.match(r"^[a-f0-9]{64}$", limpio))
+        if not es_pbkdf2 and not es_legado:
+            raise ValueError("La credencial almacenada tiene un formato de hash no soportado.")
         self._password_hash = limpio
 
     @property
@@ -80,16 +90,21 @@ class Usuario:
 
     @staticmethod
     def encriptar_credencial(clave_plana: str) -> str:
-        """
-        Valida que la contraseña en texto plano no esté vacía ni sea demasiado corta,
-        y retorna su representación encriptada mediante el algoritmo criptográfico SHA-256.
-        """
+        """Genera una credencial PBKDF2 con salt aleatorio."""
         if not isinstance(clave_plana, str) or not clave_plana.strip():
             raise ValueError("La contraseña no puede estar vacía ni contener solo espacios.")
         clave_limpia = clave_plana.strip()
-        if len(clave_limpia) < 4:
-            raise ValueError("La contraseña debe tener al menos 4 caracteres.")
-        return hashlib.sha256(clave_limpia.encode("utf-8")).hexdigest()
+        if len(clave_limpia) < 8:
+            raise ValueError("La contraseña debe tener al menos 8 caracteres.")
+        iteraciones = 200_000
+        salt = os.urandom(16)
+        derivado = hashlib.pbkdf2_hmac(
+            "sha256", clave_limpia.encode("utf-8"), salt, iteraciones
+        )
+        return f"pbkdf2_sha256${iteraciones}${salt.hex()}${derivado.hex()}"
+
+    def es_hash_legado(self) -> bool:
+        return len(self._password_hash) == 64
 
     @staticmethod
     def validar_credenciales_ingreso(username: str, clave_plana: str) -> tuple[bool, str]:
@@ -109,22 +124,31 @@ class Usuario:
             return (False, "El nombre de usuario ingresado es inválido (mínimo 3 caracteres).")
         if not re.match(r"^[a-zA-Z0-9_.-]+$", user_limpio):
             return (False, "El nombre de usuario contiene caracteres no permitidos.")
-        if len(clave_limpia) < 4:
-            return (False, "La contraseña ingresada es inválida (mínimo 4 caracteres).")
+        if len(clave_limpia) < 8:
+            return (False, "La contraseña ingresada es inválida (mínimo 8 caracteres).")
 
         return (True, "Formato de credenciales válido.")
 
     def verificar_credencial(self, clave_ingresada: str) -> bool:
-        """
-        Compara la contraseña ingresada (en texto plano) con el hash encriptado del usuario
-        utilizando comparación en tiempo constante para mitigar ataques de temporización.
-        """
         if not isinstance(clave_ingresada, str) or not clave_ingresada.strip():
             return False
         try:
-            hash_ingresado = self.encriptar_credencial(clave_ingresada)
+            if self.es_hash_legado():
+                hash_ingresado = hashlib.sha256(
+                    clave_ingresada.strip().encode("utf-8")
+                ).hexdigest()
+            else:
+                _, iteraciones, salt_hex, hash_esperado = self._password_hash.split("$")
+                derivado = hashlib.pbkdf2_hmac(
+                    "sha256",
+                    clave_ingresada.strip().encode("utf-8"),
+                    bytes.fromhex(salt_hex),
+                    int(iteraciones),
+                )
+                hash_ingresado = derivado.hex()
+                return hmac.compare_digest(hash_esperado, hash_ingresado)
             return hmac.compare_digest(self._password_hash, hash_ingresado)
-        except ValueError:
+        except (ValueError, TypeError):
             return False
 
     def __str__(self) -> str:
@@ -132,6 +156,6 @@ class Usuario:
         hash_resumen = f"{self.password_hash[:12]}...{self.password_hash[-6:]}"
         return (
             f"Usuario [ID: {id_str}] | Login: {self.username} | "
-            f"Nombre: {self.nombre_completo} | Rol: {self.rol} | Hash SHA-256: {hash_resumen}"
+            f"Nombre: {self.nombre_completo} | Rol: {self.rol} | Hash PBKDF2: {hash_resumen}"
         )
         

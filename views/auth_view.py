@@ -9,9 +9,9 @@ class AuthView:
     @staticmethod
     def mostrar_banner_login(intento_actual: int, max_intentos: int) -> None:
         print("\n" + "=" * 55)
-        print("   CLÍNICA SANITARIA - INICIO DE SESIÓN SEGURO (SHA-256)")
+        print("   CLÍNICA SANITARIA - INICIO DE SESIÓN SEGURO")
         print("=" * 55)
-        print(f"Intento {intento_actual} de {max_intentos} (Por defecto: admin / admin1234)")
+        print(f"Intento {intento_actual} de {max_intentos}")
         print("-" * 55)
 
     @staticmethod
@@ -36,7 +36,7 @@ class AuthView:
         print("   GESTIÓN DE USUARIOS Y CREDENCIALES")
         print("-" * 45)
         print("1.- Registrar nuevo usuario (Encriptar clave)")
-        print("2.- Listar usuarios y verificar hashes SHA-256")
+        print("2.- Listar usuarios y verificar credenciales")
         print("3.- Eliminar usuario")
         print("0.- Volver al menú principal")
         print("-" * 45)
@@ -47,7 +47,7 @@ class AuthView:
         print("\n--- Registrar Nuevo Usuario ---")
         username = input("Ingrese nombre de usuario (mín. 3 caracteres, sin espacios): ").strip()
         nombre_completo = input("Ingrese nombre completo del funcionario: ").strip()
-        clave = input("Ingrese contraseña (mín. 4 caracteres, se encriptará con SHA-256): ").strip()
+        clave = input("Ingrese contraseña (mín. 8 caracteres): ").strip()
         confirmacion = input("Confirme la contraseña: ").strip()
 
         print("Roles disponibles: 1.- Administrador, 2.- Medico, 3.- Operador")

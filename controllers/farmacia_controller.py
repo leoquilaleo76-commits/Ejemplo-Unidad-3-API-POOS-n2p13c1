@@ -42,8 +42,8 @@ class FarmaciaController:
             self.view.mostrar_medicamentos(medicamentos)
         except ValueError as e:
             self.view.mostrar_error(str(e))
-        except Exception as e:
-            self.view.mostrar_error(f"Error inesperado: {str(e)}")
+        except Exception:
+            self.view.mostrar_error("Ocurrió un error inesperado. La operación fue cancelada.")
 
     def prescribir_medicamento(self) -> None:
         termino = self.view.pedir_termino_busqueda()
@@ -94,8 +94,8 @@ class FarmaciaController:
 
         except ValueError as e:
             self.view.mostrar_error(str(e))
-        except Exception as e:
-            self.view.mostrar_error(f"Error al emitir receta: {str(e)}")
+        except Exception:
+            self.view.mostrar_error("No fue posible emitir la receta. La operación fue cancelada.")
 
     def consultar_recetas_paciente(self) -> None:
         rut = self.view.pedir_rut_busqueda()

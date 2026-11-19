@@ -27,6 +27,15 @@ class AuthController:
 
             usuario = UsuarioDAO.obtener_por_username(username)
             if usuario is not None and usuario.verificar_credencial(clave):
+                if usuario.es_hash_legado():
+                    nuevo_hash = Usuario.encriptar_credencial(clave)
+                    if not UsuarioDAO.actualizar_password_hash(
+                        usuario.id_usuario, nuevo_hash
+                    ):
+                        self.view.mostrar_error(
+                            "No se pudo actualizar el formato de la credencial antigua. "
+                            "Contacte al administrador del sistema."
+                        )
                 self.view.mostrar_bienvenida(usuario)
                 return usuario
 
